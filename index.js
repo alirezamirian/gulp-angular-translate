@@ -1,14 +1,16 @@
+
 var concat = require('gulp-concat');
 var es = require('event-stream');
 var gutil = require('gulp-util');
-var path = require('path');
+var extractLocale = require('angular-translate-loader/dist/extractLocale').default;
+var angularTranslateLoaderDefaultOptions = require('angular-translate-loader/dist/defaultOptions').default;
 
 function cacheTranslations(options) {
   return es.map(function(file, callback) {
     file.contents = new Buffer(gutil.template('$translateProvider.translations("<%= language %>", <%= contents %>);\n', {
       contents: file.contents,
       file: file,
-      language: options.language || file.path.split(path.sep).pop().match(/^(?:[\w]{3,}-)?([a-z]{2}[_|-]?(?:[A-Z]{2})?)\.json$/i).pop()
+      language: options.language || extractLocale({resourcePath: file.path}, angularTranslateLoaderDefaultOptions)
     }));
     callback(null, file);
   });
